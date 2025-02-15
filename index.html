@@ -109,6 +109,7 @@
 
 
     <script>
+    // Функция добавления видео
     function uploadVideo() {
         const title = document.getElementById("videoTitle").value.trim();
         const description = document.getElementById("videoDescription").value.trim();
@@ -121,9 +122,9 @@
         }
 
         const reader = new FileReader();
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file); // Сохраняем видео как Base64
         reader.onload = function() {
-            const videoBase64 = reader.result; // Сохраняем видео как Base64
+            const videoBase64 = reader.result;
             const videos = JSON.parse(localStorage.getItem("videos")) || [];
             videos.push({ title, description, videoUrl: videoBase64 });
 
@@ -135,6 +136,7 @@
         };
     }
 
+    // Функция удаления видео
     function deleteVideo(index) {
         const videos = JSON.parse(localStorage.getItem("videos")) || [];
         videos.splice(index, 1);
@@ -142,6 +144,7 @@
         displayVideos();
     }
 
+    // Функция отображения видео в админ-панели
     function displayVideos() {
         const videoList = document.getElementById("videoList");
         const videos = JSON.parse(localStorage.getItem("videos")) || [];
@@ -165,9 +168,34 @@
         });
     }
 
+    // Функция скачивания videos.json
+    function downloadVideos() {
+        const videos = localStorage.getItem("videos") || "[]";
+        const blob = new Blob([videos], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "videos.json";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Функция загрузки videos.json обратно
+    function uploadVideos(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            localStorage.setItem("videos", e.target.result);
+            alert("Видео загружены!");
+            displayVideos();
+        };
+        reader.readAsText(file);
+    }
+
     document.addEventListener("DOMContentLoaded", displayVideos);
 </script>
-
 
 
 
