@@ -107,63 +107,42 @@
         <div id="videoList" class="video-list"></div>
     </div>
 
+
     <script>
-        function uploadVideo() {
-            const title = document.getElementById("videoTitle").value.trim();
-            const description = document.getElementById("videoDescription").value.trim();
-            const fileInput = document.getElementById("videoFile");
-            const file = fileInput.files[0];
-
-            if (!title || !description || !file) {
-                alert("Заполните все поля и выберите видео!");
-                return;
-            }
-
-            const videoUrl = URL.createObjectURL(file);
-
-            const videos = JSON.parse(localStorage.getItem("videos")) || [];
-            videos.push({ title, description, videoUrl });
-            localStorage.setItem("videos", JSON.stringify(videos));
-
-            alert("Видео добавлено!");
-            fileInput.value = "";
-            displayVideos();
+    document.addEventListener("DOMContentLoaded", function() {
+        const activeUser = JSON.parse(localStorage.getItem("activeUser"));
+        if (!activeUser) {
+            alert("Сначала войдите в систему!");
+            window.location.href = "index.html";
+            return;
         }
 
-        function displayVideos() {
-            const videoList = document.getElementById("videoList");
-            const videos = JSON.parse(localStorage.getItem("videos")) || [];
+        const videoGrid = document.getElementById("videoGrid");
+        const videos = JSON.parse(localStorage.getItem("videos")) || [];
 
-            videoList.innerHTML = "";
-
-            if (videos.length === 0) {
-                videoList.innerHTML = "<p>Нет загруженных видео</p>";
-                return;
-            }
-
+        if (videos.length === 0) {
+            videoGrid.innerHTML = "<p style='color:white; text-align:center;'>Нет загруженных видео</p>";
+        } else {
             videos.forEach((video, index) => {
-                const videoItem = document.createElement("div");
-                videoItem.classList.add("video-item");
-                videoItem.innerHTML = `
-                    <div>
-                        <strong>${video.title}</strong><br>
-                        <small>${video.description}</small>
+                videoGrid.innerHTML += `
+                    <div class="video-item">
+                        <video controls width="100%">
+                            <source src="${video.videoUrl}" type="video/mp4">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                        <div class="video-info">
+                            <div class="video-title">${video.title}</div>
+                            <div class="video-description">${video.description}</div>
+                        </div>
                     </div>
-                    <button class="delete-btn" onclick="deleteVideo(${index})">Удалить</button>
                 `;
-                videoList.appendChild(videoItem);
             });
         }
+    });
+</script>
 
-        function deleteVideo(index) {
-            const videos = JSON.parse(localStorage.getItem("videos")) || [];
-            videos.splice(index, 1);
-            localStorage.setItem("videos", JSON.stringify(videos));
-            displayVideos();
-        }
 
-        document.addEventListener("DOMContentLoaded", displayVideos);
-    </script>
+ 
 
 </body>
 </html>
