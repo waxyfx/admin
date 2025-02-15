@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавление и управление видео</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #42b72a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #36a420;
+        }
+        .video-list {
+            margin-top: 20px;
+            width: 100%;
+        }
+        .video-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 10px;
+            background-color: #f9f9f9;
+            flex-direction: column;
+            text-align: center;
+        }
+        .delete-btn {
+            background-color: red;
+            padding: 8px;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .delete-btn:hover {
+            background-color: darkred;
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+                max-width: 95%;
+            }
+            input, textarea, button {
+                font-size: 1rem;
+                padding: 10px;
+            }
+            .video-item {
+                padding: 8px;
+            }
+            .delete-btn {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Добавить видео</h1>
+        <input type="text" id="videoTitle" placeholder="Название видео" required>
+        <textarea id="videoDescription" placeholder="Описание видео" rows="3" required></textarea>
+        <input type="file" id="videoFile" accept="video/*">
+        <button onclick="uploadVideo()">Загрузить</button>
+
+        <h2>Список видео</h2>
+        <div id="videoList" class="video-list"></div>
+    </div>
+
+    <script>
+        function uploadVideo() {
+            const title = document.getElementById("videoTitle").value.trim();
+            const description = document.getElementById("videoDescription").value.trim();
+            const fileInput = document.getElementById("videoFile");
+            const file = fileInput.files[0];
+
+            if (!title || !description || !file) {
+                alert("Заполните все поля и выберите видео!");
+                return;
+            }
+
+            const videoUrl = URL.createObjectURL(file);
+
+            const videos = JSON.parse(localStorage.getItem("videos")) || [];
+            videos.push({ title, description, videoUrl });
+            localStorage.setItem("videos", JSON.stringify(videos));
+
+            alert("Видео добавлено!");
+            fileInput.value = "";
+            displayVideos();
+        }
+
+        function displayVideos() {
+            const videoList = document.getElementById("videoList");
+            const videos = JSON.parse(localStorage.getItem("videos")) || [];
+
+            videoList.innerHTML = "";
+
+            if (videos.length === 0) {
+                videoList.innerHTML = "<p>Нет загруженных видео</p>";
+                return;
+            }
+
+            videos.forEach((video, index) => {
+                const videoItem = document.createElement("div");
+                videoItem.classList.add("video-item");
+                videoItem.innerHTML = `
+                    <div>
+                        <strong>${video.title}</strong><br>
+                        <small>${video.description}</small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteVideo(${index})">Удалить</button>
+                `;
+                videoList.appendChild(videoItem);
+            });
+        }
+
+        function deleteVideo(index) {
+            const videos = JSON.parse(localStorage.getItem("videos")) || [];
+            videos.splice(index, 1);
+            localStorage.setItem("videos", JSON.stringify(videos));
+            displayVideos();
+        }
+
+        document.addEventListener("DOMContentLoaded", displayVideos);
+    </script>
+
+</body>
+</html>
